@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -8,7 +10,7 @@ import (
 func Connect(databaseURL string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", databaseURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	db.SetMaxOpenConns(20)

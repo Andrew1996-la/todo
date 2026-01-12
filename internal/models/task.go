@@ -14,9 +14,11 @@ type Task struct {
 type CreateTaskInput struct {
 	Title       string `json:"title" db:"title"`
 	Description string `json:"description" db:"description"`
+	Completed   bool   `json:"completed" db:"completed"`
 }
 
 type UpdateTaskInput struct {
 	Title       *string `json:"title" db:"title"`
 	Description *string `json:"description" db:"description"`
+	Completed   *bool   `json:"completed" db:"completed"`
 }
