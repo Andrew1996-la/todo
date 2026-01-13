@@ -68,7 +68,7 @@ func (t *TaskStore) Create(input models.CreateTaskInput) (*models.Task, error) {
 
 	currentTime := time.Now()
 
-	err := t.db.QueryRowx(query, input.Title, input.Description, input.Description, currentTime, currentTime).StructScan(&task)
+	err := t.db.QueryRowx(query, input.Title, input.Description, input.Completed, currentTime, currentTime).StructScan(&task)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to insert task: %w", err)
@@ -95,19 +95,27 @@ func (t *TaskStore) Update(id int, input models.UpdateTaskInput) (*models.Task, 
 		task.Completed = *input.Completed
 	}
 
-	task.CreatedAt = time.Now()
+	task.UpdatedAt = time.Now()
 
 	query := `
-		UPDATE tasks
-		SET title = $1, description = $2, completed = $3, updated_at = $4
-		WHERE id = $5
-		RETURNING id, title, description, completed, created_at, updated_at
-	`
+        UPDATE tasks
+        SET title = $1, description = $2, completed = $3, updated_at = $4
+        WHERE id = $5
+        RETURNING id, title, description, completed, created_at, updated_at
+    `
 
 	var updatedTask models.Task
 
-	errUpdate := t.db.QueryRowx(query, task.Title, task.Description, task.Completed, task.UpdatedAt).StructScan(&updatedTask)
-	if errUpdate != nil {
+	err = t.db.QueryRowx(
+		query,
+		task.Title,
+		task.Description,
+		task.Completed,
+		task.UpdatedAt,
+		id,
+	).StructScan(&updatedTask)
+
+	if err != nil {
 		return nil, fmt.Errorf("failed to update task: %w", err)
 	}
 
